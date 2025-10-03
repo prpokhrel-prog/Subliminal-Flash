@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subliminal Flash Pro (v3)</title>
+  <meta name="theme-color" content="#0a84ff">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/192.png">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Subliminal Flash Pro</h1>
+    <div class="header-actions">
+      <button id="installBtn" hidden>Install</button>
+      <button id="fsBtn" title="Toggle Fullscreen (F)">⛶</button>
+      <button id="pwaInfoBtn" title="Help">?</button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="sidebar">
+      <section class="block">
+        <h2>Categories</h2>
+        <div class="row">
+          <input id="newCategory" placeholder="New category name">
+          <button id="addCategory">Add</button>
+        </div>
+        <ul id="categoryList"></ul>
+      </section>
+
+      <section class="block">
+        <h2>Messages</h2>
+        <div class="row">
+          <input id="newMessage" placeholder="Type message">
+          <button id="addMessage">Add</button>
+        </div>
+        <ul id="messageList"></ul>
+        <div class="row wrap">
+          <button id="exportJson">Export JSON</button>
+          <button id="importJson">Import JSON</button>
+          <button id="exportCsv">Export CSV</button>
+          <input type="file" id="importCsvFile" accept=".csv" hidden>
+          <button id="importCsv">Import CSV</button>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Flash From Categories</h2>
+        <div class="hint">Select one or more categories and assign weights (relative probability).</div>
+        <div class="row">
+          <button id="selectAllCats">Select All</button>
+          <button id="clearAllCats">Clear</button>
+        </div>
+        <ul id="multiCatList"></ul>
+      </section>
+
+      <section class="block">
+        <h2>Add Bullets</h2>
+        <textarea id="newBullets" rows="4" placeholder="One line per bullet"></textarea>
+        <div class="row">
+          <button id="addBullets">Add Lines</button>
+          <label>Render as bullets<input type="checkbox" id="renderBullets"></label>
+          <label>Render Markdown<input type="checkbox" id="renderMd"></label>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Flash Settings</h2>
+        <div class="grid2">
+          <label>Interval (ms)<input type="number" id="intervalMs" value="500" min="10"></label>
+          <label>Duration (ms)<input type="number" id="durationMs" value="50" min="5"></label>
+          <label>Font size (px)<input type="number" id="fontSize" value="36" min="10"></label>
+          <label>Opacity (0-1)<input type="number" id="opacity" value="0.9" min="0" max="1" step="0.05"></label>
+          <label>Text color<input type="color" id="textColor" value="#ffffff"></label>
+          <label>Outline<input type="checkbox" id="outline"></label>
+          <label>Backdrop blur<input type="checkbox" id="backdrop"></label>
+          <label>Dim background<input type="range" id="dim" min="0" max="0.8" step="0.05" value="0"></label>
+          <label>Position
+            <select id="position">
+              <option value="center">Center</option>
+              <option value="top">Top</option>
+              <option value="bottom">Bottom</option>
+              <option value="random">Random</option>
+            </select>
+          </label>
+          <label>Mode
+            <select id="mode">
+              <option value="message">Message</option>
+              <option value="word">Word-by-word</option>
+            </select>
+          </label>
+          <label>No repeat in a row<input type="checkbox" id="noRepeat" checked></label>
+        </div>
+        <div class="row grid2">
+          <label>Enable auto-stop<input type="checkbox" id="autoStop"></label>
+          <label>Auto-stop after (minutes)<input type="number" id="autoStopMin" min="1" placeholder="e.g., 15"></label>
+          <label>Or stop after (flashes)<input type="number" id="autoStopFlashes" min="1" placeholder="e.g., 1000"></label>
+        </div>
+        <div class="row">
+          <button id="startBtn">Start (Space)</button>
+          <button id="stopBtn" disabled>Stop</button>
+          <button id="resetStats">Reset Stats</button>
+        </div>
+        <div class="stats">
+          <span>Flashes: <b class="counter" id="statFlashes">0</b></span>
+          <span>Timer: <b class="counter" id="statTime">0s</b></span>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>Sessions</h2>
+        <div class="row">
+          <input id="presetName" placeholder="Preset name">
+          <button id="savePreset">Save Preset</button>
+        </div>
+        <ul id="presetList"></ul>
+      </section>
+
+      <section class="block">
+        <h2>YouTube Settings</h2>
+        <div class="grid2">
+          <label>API Key<input type="text" id="ytApiKey" placeholder="AIza..."></label>
+          <label>OAuth Client ID<input type="text" id="ytClientId" placeholder="xxxxx.apps.googleusercontent.com"></label>
+        </div>
+        <div class="row">
+          <button id="saveYtCfg">Save</button>
+          <button id="ytSignIn">Sign In</button>
+          <button id="ytSignOut">Sign Out</button>
+        </div>
+        <small class="hint">API Key enables search w/o login. Sign in (OAuth) if you want private playlists like Watch Later.</small>
+      </section>
+
+      <section class="block">
+        <h2>Shortcuts</h2>
+        <ul class="hint">
+          <li><b>Space</b>: Start/Stop</li>
+          <li><b>F</b>: Fullscreen</li>
+          <li><b>↑/↓</b>: Font ±</li>
+          <li><b>←/→</b>: Interval ±50ms</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="content">
+      <div class="tabs">
+        <button class="tab active" data-tab="youtubeTab">YouTube</button>
+        <button class="tab" data-tab="tiktokTab">TikTok</button>
+        <button class="tab" data-tab="videoTab">Local/URL Video</button>
+        <button class="tab" data-tab="browserTab">Embed Browser</button>
+        <button class="tab" data-tab="screenTab">Blank Screen</button>
+      </div>
+
+      <div id="youtubeTab" class="tabPanel active">
+        <div class="row">
+          <input id="ytUrl" placeholder="Paste YouTube URL or ID">
+          <button id="loadYt">Load</button>
+          <button id="playYt">Play/Pause</button>
+          <button id="muteYt">Mute/Unmute</button>
+        </div>
+        <div class="playerWrap">
+          <div id="player"></div>
+          <div class="dimLayer" id="dimYt"></div>
+          <div class="overlay" id="overlay"></div>
+        </div>
+        <div class="row wrap">
+          <input id="ytSearch" placeholder="Search YouTube (needs API key)">
+          <button id="ytSearchBtn">Search</button>
+          <button id="ytBookmark">☆ Bookmark Current</button>
+        </div>
+        <div class="ytTwoCols">
+          <div>
+            <h3>Bookmarks</h3>
+            <ul id="ytBookmarks"></ul>
+          </div>
+          <div>
+            <h3>Search Results</h3>
+            <ul id="ytResults"></ul>
+          </div>
+        </div>
+        <div>
+          <h3>Watch Later (requires sign-in)</h3>
+          <button id="loadWatchLater">Load Watch Later</button>
+          <ul id="ytWatchLater"></ul>
+        </div>
+      </div>
+
+      <div id="tiktokTab" class="tabPanel">
+        <div class="row">
+          <input id="tkUrl" placeholder="Paste TikTok share URL">
+          <button id="loadTk">Load</button>
+        </div>
+        <div class="playerWrap">
+          <div id="tiktokEmbed" class="tiktokWrap"></div>
+          <script async src="https://www.tiktok.com/embed.js"></script>
+          <div class="dimLayer" id="dimTk"></div>
+          <div class="overlay" id="overlayTk"></div>
+        </div>
+        <small class="hint">Some TikTok links may not embed due to site policies; use official share URLs.</small>
+      </div>
+
+      <div id="videoTab" class="tabPanel">
+        <div class="row">
+          <input id="videoUrl" placeholder="Direct video URL (CORS-permitting)">
+          <input type="file" id="videoFile" accept="video/*">
+          <button id="loadVideo">Load</button>
+          <button id="playVideo">Play/Pause</button>
+          <button id="pipVideo">Picture-in-Picture</button>
+        </div>
+        <div class="playerWrap">
+          <video id="video" controls playsinline></video>
+          <div class="dimLayer" id="dimV"></div>
+          <div class="overlay" id="overlay2"></div>
+        </div>
+      </div>
+
+      <div id="browserTab" class="tabPanel">
+        <div class="row">
+          <input id="navUrl" placeholder="Embed-friendly URL (some sites block iframes)">
+          <button id="goUrl">Go</button>
+          <button id="openNew">Open in New Tab</button>
+        </div>
+        <div class="playerWrap">
+          <iframe id="embedFrame" sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock allow-popups allow-presentation" referrerpolicy="no-referrer"></iframe>
+          <div class="dimLayer" id="dimB"></div>
+          <div class="overlay" id="overlay3"></div>
+        </div>
+      </div>
+
+      <div id="screenTab" class="tabPanel">
+        <p>Blank canvas for text-only flashing.</p>
+        <div class="playerWrap">
+          <div class="blankFill"></div>
+          <div class="dimLayer" id="dimBlank"></div>
+          <div class="overlay" id="overlay4"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Local-only PWA. Data stored in your browser. Personal/educational use.</small>
+  </footer>
+
+  <div id="pwaHelp" class="modal hidden">
+    <div class="modalContent">
+      <h3>Help & Notes</h3>
+      <ul>
+        <li>Install as PWA: iOS Safari → Share → Add to Home Screen. Android Chrome → Install app.</li>
+        <li>Overlay shows only inside this app's surface (not other apps/tabs).</li>
+        <li>Use YouTube Settings to add API Key (search) and OAuth Client (Watch Later) if desired.</li>
+      </ul>
+      <button id="closeHelp">Close</button>
+    </div>
+  </div>
+</body>
+</html>
