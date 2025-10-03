@@ -39,8 +39,6 @@ document.getElementById('installBtn').addEventListener('click', async () => {
   state.installPrompt = null;
   document.getElementById('installBtn').hidden = true;
 });
-document.getElementById('pwaInfoBtn').onclick = () => document.getElementById('pwaHelp').classList.remove('hidden');
-document.getElementById('closeHelp').onclick = () => document.getElementById('pwaHelp').classList.add('hidden');
 
 // ===== Storage =====
 function loadCore(){
