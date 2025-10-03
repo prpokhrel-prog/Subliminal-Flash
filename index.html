@@ -255,6 +255,9 @@
         <li>Use YouTube Settings to add API Key (search) and OAuth Client (Watch Later) if desired.</li>
       </ul>
       <button id="closeHelp">Close</button>
+      document.getElementById('closeHelp').onclick = () =>
+  document.getElementById('pwaHelp').classList.add('hidden');
+
     </div>
   </div>
 </body>
